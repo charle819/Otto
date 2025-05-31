@@ -1,0 +1,373 @@
+openapi: 3.0.4
+info:
+  title: Otto API
+  description: |-
+    Api spec for the endpoints for Otto
+  version: 1.0.0
+servers:
+  - url: http://localhost/api/v1/otto
+tags:
+  - name: Employee
+    description: Operations about employee
+paths:
+  /employee:
+    post:
+      tags: 
+        - Employee
+      summary: Create Employee
+      description: Create new Employee
+      operationId: createEmployee
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+      responses:
+        '200':
+          description: New Created Employee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags: 
+        - Employee
+      summary: Search Employees
+      description: Search Employees
+      operationId: searchEmployee
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: limit
+          in: query
+          description: Pagination limit
+          required: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
+            maximum: 100
+        - name: baseLocation
+          in: query
+          description: Filter by base location
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Filter by employee name
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Filter by email
+          required: false
+          schema:
+            type: string
+            format: email
+            pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        - name: isActive
+          in: query
+          description: Filter by active status (true/false)
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Paginated employee list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEmployeeResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      
+  /employee/login:
+    post:
+      tags: 
+        - Employee
+      summary: Login Employee
+      description: Login Employee
+      operationId: loginEmployee
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Employee login successfull
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /employee/logout:
+    post:
+      tags: 
+        - Employee
+      summary: Logout Employee
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '200':
+          description: Logout successful
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /employee/{employee_id}:
+    put:
+      tags: 
+        - Employee
+      summary: Update Employee
+      description: Update Employee
+      operationId: updateEmployee
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employee_id
+          in: path
+          description: Id of Employee
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+      responses:
+        '200':
+          description: Updated Employee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: 
+        - Employee
+      summary: Delete Employee
+      description: Delete Employee
+      operationId: deleteEmployee
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employee_id
+          in: path
+          description: Id of Employee
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags: 
+        - Employee
+      summary: Get Employee
+      description: Get Employee
+      operationId: getEmployee
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employee_id
+          in: path
+          description: Id of Employee
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get employee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    
+
+security: 
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
+  schemas:
+    Employee:
+      type: object
+      properties:
+        employeeId:
+          type: integer
+          example: 101
+        employeeCode:
+          type: string
+          example: EMP001
+        fullName:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+          pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        phoneNumber:
+          type: string
+          example: "+91-9876543210"
+          pattern: '^\+91-\d{10}$'
+        baseLocation:
+          type: string
+          example: Mumbai
+        isActive:
+          type: boolean
+          example: true
+        createdOn:
+          type: string
+          format: date-time
+          example: '2024-01-01T10:00:00Z'
+        updatedOn:
+          type: string
+          format: date-time
+          example: '2024-01-10T15:45:00Z'
+          
+    PaginatedEmployeeResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Employee'
+        offset:
+          type: integer
+          example: 0
+        limit:
+          type: integer
+          example: 30
+        count:
+          type: integer
+          description: Number of items in current response
+          example: 30
+        total:
+          type: integer
+          description: Total number of items matching the filter
+          example: 100
+          
+    LoginRequest:
+      type: object
+      description: Login request accepting either employeeCode or email plus password
+      oneOf:
+        - required:
+            - employeeCode
+            - password
+          properties:
+            employeeCode:
+              type: string
+              example: EMP001
+            password:
+              type: string
+              format: password
+              example: "yourStrongPassword123"
+        - required:
+            - email
+            - password
+          properties:
+            email:
+              type: string
+              format: email
+              example: john.doe@example.com
+              pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            password:
+              type: string
+              format: password
+              example: "yourStrongPassword123"
+
+    LoginResponse:
+      type: object
+      properties:
+        jwtToken:
+          type: string
+          description: JWT authentication token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          description: Refresh token to obtain new JWT token
+          example: d1f6a2b7-3f7a-4e45-9e3a-5b8d2e4c3f9a
+
+    LogoutRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Refresh token to invalidate
+          example: d1f6a2b7-3f7a-4e45-9e3a-5b8d2e4c3f9a
+          
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
