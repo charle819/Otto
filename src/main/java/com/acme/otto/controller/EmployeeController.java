@@ -5,9 +5,11 @@ import com.acme.otto.model.LoginRequest;
 import com.acme.otto.model.LoginResponse;
 import com.acme.otto.model.LogoutRequest;
 import com.acme.otto.model.PaginatedEmployeeResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 public class EmployeeController implements EmployeeApi {
 

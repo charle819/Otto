@@ -9,10 +9,12 @@ servers:
 tags:
   - name: Employee
     description: Operations about employee
+  - name: Meeting Room
+    description: Operations for Meeting Rooms
 paths:
   /employee:
     post:
-      tags: 
+      tags:
         - Employee
       summary: Create Employee
       description: Create new Employee
@@ -25,7 +27,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Employee'
       responses:
-        '200':
+        '201':
           description: New Created Employee
           content:
             application/json:
@@ -38,7 +40,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     get:
-      tags: 
+      tags:
         - Employee
       summary: Search Employees
       description: Search Employees
@@ -102,10 +104,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-      
   /employee/login:
     post:
-      tags: 
+      tags:
         - Employee
       summary: Login Employee
       description: Login Employee
@@ -133,7 +134,7 @@ paths:
                 $ref: "#/components/schemas/Error"
   /employee/logout:
     post:
-      tags: 
+      tags:
         - Employee
       summary: Logout Employee
       security:
@@ -155,7 +156,7 @@ paths:
                 $ref: "#/components/schemas/Error"
   /employee/{employee_id}:
     put:
-      tags: 
+      tags:
         - Employee
       summary: Update Employee
       description: Update Employee
@@ -188,7 +189,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     delete:
-      tags: 
+      tags:
         - Employee
       summary: Delete Employee
       description: Delete Employee
@@ -212,7 +213,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     get:
-      tags: 
+      tags:
         - Employee
       summary: Get Employee
       description: Get Employee
@@ -239,9 +240,253 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    
 
-security: 
+  /meeting-room:
+    post:
+      tags:
+        - Meeting Room
+      summary: Create Meeting Room
+      operationId: createMeetingRoom
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingRoom'
+      responses:
+        '201':
+          description: New created meeting room
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRoom'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags:
+        - Meeting Room
+      summary: Search Meeting Room
+      operationId: searchMeetingRoom
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: limit
+          in: query
+          description: Number of records per page
+          required: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
+        - name: room_status
+          in: query
+          description: Filter by room status (e.g., available, occupied)
+          required: false
+          schema:
+            type: string
+            enum: [available, occupied, maintenance] # optional predefined values
+        - name: amenities
+          in: query
+          description: Filter by amenities (comma-separated list)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            example: ["Projector", "Whiteboard"]
+        - name: start_time
+          in: query
+          description: Filter by booking start time
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2024-06-01T09:00:00Z"
+        - name: end_time
+          in: query
+          description: Filter by booking end time
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2024-06-01T17:00:00Z"
+        - name: employee_id
+          in: query
+          description: Filter by employee who booked
+          required: false
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Paginated Meeting room list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMeetingRoomResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /meeting-room/{meeting_room_id}:
+    put:
+      tags:
+        - Meeting Room
+      summary: Update Meeting room
+      operationId: updateMeetingRoom
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: meeting_room_id
+          in: path
+          description: Id of meeting room
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingRoom'
+      responses:
+        '201':
+          description: New created meeting room
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRoom'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - Meeting Room
+      summary: Delete Meeting room
+      operationId: deleteMeetingRoom
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: meeting_room_id
+          in: path
+          description: Id of meeting room
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    get:
+      tags:
+        - Meeting Room
+      summary: Get Meeting room
+      operationId: getMeetingRoom
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: meeting_room_id
+          in: path
+          description: Id of meeting room
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Get meeting room
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRoom'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /meeting-room/{meeting_room_id}/book:
+    post:
+      tags:
+        - Meeting Room
+      summary: Book a meeting room
+      operationId: bookMeetingRoom
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: meeting_room_id
+          in: path
+          description: Id of meeting room
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookMeetingRoom'
+      responses:
+        '200':
+          description: Successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      tags:
+        - Meeting Room
+      summary: Update a booked meeting room
+      operationId: updateBookedMeetingRoom
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: meeting_room_id
+          in: path
+          description: Id of meeting room
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookMeetingRoom'
+      responses:
+        '200':
+          description: Successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+security:
   - BearerAuth: []
 
 components:
@@ -250,7 +495,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      
+
   schemas:
     Employee:
       type: object
@@ -287,7 +532,7 @@ components:
           type: string
           format: date-time
           example: '2024-01-10T15:45:00Z'
-          
+
     PaginatedEmployeeResponse:
       type: object
       properties:
@@ -309,7 +554,7 @@ components:
           type: integer
           description: Total number of items matching the filter
           example: 100
-          
+
     LoginRequest:
       type: object
       description: Login request accepting either employeeCode or email plus password
@@ -360,7 +605,97 @@ components:
           type: string
           description: Refresh token to invalidate
           example: d1f6a2b7-3f7a-4e45-9e3a-5b8d2e4c3f9a
-          
+
+    MeetingRoom:
+      type: object
+      properties:
+        meetingRoomId:
+          type: integer
+          example: 101
+        name:
+          type: string
+          example: "Conference Room A"
+        roomCode:
+          type: string
+          example: "CONF-A"
+        description:
+          type: string
+          example: "A 10-seater room with projector"
+        capacity:
+          type: integer
+          example: 10
+        location:
+          type: string
+          example: "Mumbai HQ"
+        floorNumber:
+          type: integer
+          example: 3
+        isActive:
+          type: boolean
+          example: true
+        amenities:
+          type: array
+          items:
+            type: string
+          example: ["Projector", "Whiteboard", "Video Conferencing"]
+        createdOn:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00Z"
+        updatedOn:
+          type: string
+          format: date-time
+          example: "2024-01-10T15:45:00Z"
+
+    PaginatedMeetingRoomResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeetingRoom'
+        offset:
+          type: integer
+          example: 0
+        limit:
+          type: integer
+          example: 30
+        count:
+          type: integer
+          description: Number of items in current response
+          example: 30
+        total:
+          type: integer
+          description: Total number of items matching the filter
+          example: 100
+
+    BookMeetingRoom:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 12345
+        startTime:
+          type: string
+          format: date-time
+          example: "2025-06-01T10:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2025-06-01T11:00:00Z"
+        attendeeCount:
+          type: integer
+          example: 5
+        meetingTitle:
+          type: string
+          example: "Project Kickoff Meeting"
+      required:
+        - userId
+        - startTime
+        - endTime
+        - attendeeCount
+        - meetingTitle
+
     Error:
       type: object
       properties:

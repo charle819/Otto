@@ -29,6 +29,7 @@
   </scm>
   <properties>
     <java.version>21</java.version>
+    <mapstruct.version>1.6.3</mapstruct.version>
   </properties>
   <dependencies>
     <dependency>
@@ -38,10 +39,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -75,6 +72,22 @@
     </dependency>
 
     <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
       <version>2.17.1</version>
@@ -104,9 +117,39 @@
 
   <build>
     <plugins>
+
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${mapstruct.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <version>11.8.2</version>
+        <configuration>
+          <url>jdbc:postgresql://localhost:5432/otto</url>
+          <user>postgres</user>
+          <password>root</password>
+          <locations>
+            <location>filesystem:src/main/resources/db/migration</location>
+          </locations>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -137,7 +180,7 @@
 
               <!-- Configuration options -->
               <configOptions>
-<!--                <dateLibrary>java21</dateLibrary>-->
+                <!--                <dateLibrary>java21</dateLibrary>-->
                 <interfaceOnly>true</interfaceOnly>
                 <skipDefaultInterface>true</skipDefaultInterface>
                 <useTags>true</useTags>
@@ -145,19 +188,19 @@
                 <reactive>false</reactive>
                 <serializationLibrary>jackson</serializationLibrary>
                 <hideGenerationTimestamp>true</hideGenerationTimestamp>
-<!--                <documentationProvider>none</documentationProvider>-->
-<!--                <annotationLibrary>none</annotationLibrary>-->
-<!--                <useJakartaEe>true</useJakartaEe>-->
+                <!--                <documentationProvider>none</documentationProvider>-->
+                <!--                <annotationLibrary>none</annotationLibrary>-->
+                <!--                <useJakartaEe>true</useJakartaEe>-->
               </configOptions>
 
               <!-- Generate only models and API interfaces -->
               <generateModels>true</generateModels>
               <generateApis>true</generateApis>
-<!--              <generateApiTests>false</generateApiTests>-->
-<!--              <generateModelTests>false</generateModelTests>-->
-<!--              <generateApiDocumentation>false</generateApiDocumentation>-->
-<!--              <generateModelDocumentation>false</generateModelDocumentation>-->
-<!--              <generateSupportingFiles>false</generateSupportingFiles>-->
+              <!--              <generateApiTests>false</generateApiTests>-->
+              <!--              <generateModelTests>false</generateModelTests>-->
+              <!--              <generateApiDocumentation>false</generateApiDocumentation>-->
+              <!--              <generateModelDocumentation>false</generateModelDocumentation>-->
+              <!--              <generateSupportingFiles>false</generateSupportingFiles>-->
 
             </configuration>
           </execution>
