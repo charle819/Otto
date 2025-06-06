@@ -18,6 +18,8 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
@@ -30,7 +32,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Employee {
+public class EmployeeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_seq")
@@ -51,18 +53,18 @@ public class Employee {
   private String email;
 
   @Column(name = "phone_number")
-  private Integer phoneNumber;
+  private String phoneNumber;
 
   @Column(name = "is_active")
   private Boolean isActive = Boolean.TRUE;
 
-  @Column(name = "created_on", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @Column(name = "created_on", updatable = false, columnDefinition = "TIMESTAMP WITH TIMEZONE DEFAULT CURRENT_TIMESTAMP")
   @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime createdOn;
+  private OffsetDateTime createdOn;
 
-  @Column(name = "updated_on", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @Column(name = "updated_on", columnDefinition = "TIMESTAMP WITH TIMEZONE DEFAULT CURRENT_TIMESTAMP")
   @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime updatedOn;
+  private OffsetDateTime updatedOn;
 
   @ManyToMany
   @JoinTable(
@@ -70,22 +72,22 @@ public class Employee {
       joinColumns = @JoinColumn(name = "employee_id"),
       inverseJoinColumns = @JoinColumn(name = "role_id")
   )
-  private Set<Role> roles;
+  private Set<RoleEntity> roleEntities;
 
-  @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<EmployeeSession> employeeSessions;
+  @OneToMany(mappedBy = "employeeEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<EmployeeSessionEntity> employeeSessionEntities;
 
   @PrePersist
   public void prePersist() {
     if (this.createdOn == null) {
-      this.createdOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+      this.createdOn = OffsetDateTime.now(ZoneOffset.UTC);
     }
-    this.updatedOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+    this.updatedOn = OffsetDateTime.now(ZoneOffset.UTC);
   }
 
   @PreUpdate
   public void preUpdate() {
-    this.updatedOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+    this.updatedOn = OffsetDateTime.now(ZoneOffset.UTC);
   }
 
 

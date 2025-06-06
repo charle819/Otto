@@ -16,6 +16,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeSession {
+public class EmployeeSessionEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_session_seq")
@@ -34,28 +35,28 @@ public class EmployeeSession {
   @Column(name = "employee_session_id")
   private Long employeeSessionId;
 
-  @Column(name = "created_on", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-  @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime createdOn;
-
-  @Column(name = "updated_on", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-  @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime updatedOn;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "employee_id", nullable = false)
-  private Employee employee;
+  private EmployeeEntity employeeEntity;
+
+  @Column(name = "created_on", updatable = false, columnDefinition = "TIMESTAMP WITH TIMEZONE DEFAULT CURRENT_TIMESTAMP")
+  @Temporal(TemporalType.TIMESTAMP)
+  private OffsetDateTime createdOn;
+
+  @Column(name = "updated_on", columnDefinition = "TIMESTAMP WITH TIMEZONE DEFAULT CURRENT_TIMESTAMP")
+  @Temporal(TemporalType.TIMESTAMP)
+  private OffsetDateTime updatedOn;
 
   @PrePersist
   public void prePersist() {
     if (this.createdOn == null) {
-      this.createdOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+      this.createdOn = OffsetDateTime.now(ZoneOffset.UTC);
     }
-    this.updatedOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+    this.updatedOn = OffsetDateTime.now(ZoneOffset.UTC);
   }
 
   @PreUpdate
   public void preUpdate() {
-    this.updatedOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+    this.updatedOn = OffsetDateTime.now(ZoneOffset.UTC);
   }
 }

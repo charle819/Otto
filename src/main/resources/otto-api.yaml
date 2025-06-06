@@ -121,7 +121,7 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Employee login successfull
+          description: Employee login successful
           content:
             application/json:
               schema:
@@ -169,7 +169,8 @@ paths:
           description: Id of Employee
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -202,7 +203,8 @@ paths:
           description: Id of Employee
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       responses:
         '200':
           description: Successful operation
@@ -226,7 +228,8 @@ paths:
           description: Id of Employee
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       responses:
         '200':
           description: Get employee
@@ -329,7 +332,7 @@ paths:
           required: false
           schema:
             type: integer
-            example: 123
+            format: int64
       responses:
         '200':
           description: Paginated Meeting room list
@@ -357,7 +360,8 @@ paths:
           description: Id of meeting room
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -389,7 +393,8 @@ paths:
           description: Id of meeting room
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       responses:
         '200':
           description: Successful operation
@@ -399,7 +404,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
     get:
       tags:
         - Meeting Room
@@ -413,7 +417,8 @@ paths:
           description: Id of meeting room
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       responses:
         '201':
           description: Get meeting room
@@ -441,7 +446,8 @@ paths:
           description: Id of meeting room
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -469,7 +475,8 @@ paths:
           description: Id of meeting room
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -514,6 +521,10 @@ components:
           format: email
           example: john.doe@example.com
           pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        password:
+          type: string
+          example: Your@Pa$$word
+          writeOnly: true
         phoneNumber:
           type: string
           example: "+91-9876543210"
@@ -527,7 +538,7 @@ components:
         createdOn:
           type: string
           format: date-time
-          example: '2024-01-01T10:00:00Z'
+          example: '2024-01-01T10:00:00+05:30'
         updatedOn:
           type: string
           format: date-time

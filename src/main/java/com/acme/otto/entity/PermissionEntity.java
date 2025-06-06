@@ -14,6 +14,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Permission {
+public class PermissionEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "permission_seq")
@@ -40,27 +41,27 @@ public class Permission {
   @Column(name = "description")
   private String description;
 
-  @Column(name = "created_on", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @Column(name = "created_on", updatable = false, columnDefinition = "TIMESTAMP WITH TIMEZONE DEFAULT CURRENT_TIMESTAMP")
   @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime createdOn;
+  private OffsetDateTime createdOn;
 
-  @Column(name = "updated_on", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @Column(name = "updated_on", columnDefinition = "TIMESTAMP WITH TIMEZONE DEFAULT CURRENT_TIMESTAMP")
   @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime updatedOn;
+  private OffsetDateTime updatedOn;
 
-  @ManyToMany(mappedBy = "permissions")
-  private Set<Role> roles = new HashSet<>();
+  @ManyToMany(mappedBy = "permissionEntities")
+  private Set<RoleEntity> roleEntities = new HashSet<>();
 
   @PrePersist
   public void prePersist() {
     if (this.createdOn == null) {
-      this.createdOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+      this.createdOn = OffsetDateTime.now(ZoneOffset.UTC);
     }
-    this.updatedOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+    this.updatedOn = OffsetDateTime.now(ZoneOffset.UTC);
   }
 
   @PreUpdate
   public void preUpdate() {
-    this.updatedOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+    this.updatedOn = OffsetDateTime.now(ZoneOffset.UTC);
   }
 }

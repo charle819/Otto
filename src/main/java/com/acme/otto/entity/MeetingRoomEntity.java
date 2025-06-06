@@ -1,5 +1,6 @@
 package com.acme.otto.entity;
 
+import com.acme.otto.entity.converter.StringToJsonConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -12,19 +13,21 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "meeting_room")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MeetingRoom {
+public class MeetingRoomEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "meeting_room_seq")
@@ -51,31 +54,32 @@ public class MeetingRoom {
   private String floorNumber;
 
   @Column(name = "amenity", columnDefinition = "jsonb")
-  @Convert(converter = AmenityConverter.class)
-  private String amenity;
+  @Convert(converter = StringToJsonConverter.class)
+  @JdbcTypeCode(SqlTypes.JSON) // Hibernate specific conversion
+  private List<String> amenity;
 
   @Column(name = "is_active")
   private Boolean isActive = Boolean.TRUE;
 
-  @Column(name = "created_on", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @Column(name = "created_on", updatable = false, columnDefinition = "TIMESTAMP WITH TIMEZONE DEFAULT CURRENT_TIMESTAMP")
   @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime createdOn;
+  private OffsetDateTime createdOn;
 
-  @Column(name = "updated_on", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @Column(name = "updated_on", columnDefinition = "TIMESTAMP WITH TIMEZONE DEFAULT CURRENT_TIMESTAMP")
   @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime updatedOn;
+  private OffsetDateTime updatedOn;
 
   @PrePersist
   public void prePersist() {
     if (this.createdOn == null) {
-      this.createdOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+      this.createdOn = OffsetDateTime.now(ZoneOffset.UTC);
     }
-    this.updatedOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+    this.updatedOn = OffsetDateTime.now(ZoneOffset.UTC);
   }
 
   @PreUpdate
   public void preUpdate() {
-    this.updatedOn = Instant.now().atZone(ZoneOffset.UTC).toLocalDateTime();
+    this.updatedOn = OffsetDateTime.now(ZoneOffset.UTC);
   }
 
 }

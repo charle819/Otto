@@ -5,23 +5,46 @@ import com.acme.otto.model.LoginRequest;
 import com.acme.otto.model.LoginResponse;
 import com.acme.otto.model.LogoutRequest;
 import com.acme.otto.model.PaginatedEmployeeResponse;
+import com.acme.otto.service.EmployeeService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/otto")
 public class EmployeeController implements EmployeeApi {
+
+
+  private final EmployeeService employeeService;
+
+  /**
+   * GET /employee/{employee_id} : Get Employee Get Employee
+   *
+   * @param employeeId Id of Employee (required)
+   * @return Get employee (status code 200) or Unexpected error (status code 200)
+   */
+  @Override
+  public ResponseEntity<Employee> getEmployee(Long employeeId) {
+    return ResponseEntity.ok(employeeService.getById(employeeId));
+  }
+
 
   /**
    * POST /employee : Create Employee Create new Employee
    *
    * @param employee (optional)
-   * @return New Created Employee (status code 200) or Unexpected error (status code 200)
+   * @return New Created Employee (status code 201) or Unexpected error (status code 200)
    */
   @Override
   public ResponseEntity<Employee> createEmployee(Employee employee) {
-    return null;
+    return ResponseEntity.status(HttpStatus.CREATED.value())
+        .body(employeeService.create(employee));
   }
 
   /**
@@ -31,7 +54,7 @@ public class EmployeeController implements EmployeeApi {
    * @return Successful operation (status code 200) or Unexpected error (status code 200)
    */
   @Override
-  public ResponseEntity<Void> deleteEmployee(String employeeId) {
+  public ResponseEntity<Void> deleteEmployee(Long employeeId) {
     return null;
   }
 
@@ -46,16 +69,6 @@ public class EmployeeController implements EmployeeApi {
     return null;
   }
 
-  /**
-   * GET /employee/{employee_id} : Get Employee Get Employee
-   *
-   * @param employeeId Id of Employee (required)
-   * @return Get employee (status code 200) or Unexpected error (status code 200)
-   */
-  @Override
-  public ResponseEntity<Employee> getEmployee(String employeeId) {
-    return null;
-  }
 
   /**
    * POST /employee/login : Login Employee Login Employee
@@ -93,7 +106,7 @@ public class EmployeeController implements EmployeeApi {
    * @return Updated Employee (status code 200) or Unexpected error (status code 200)
    */
   @Override
-  public ResponseEntity<Employee> updateEmployee(String employeeId, Employee employee) {
+  public ResponseEntity<Employee> updateEmployee(Long employeeId, Employee employee) {
     return null;
   }
 }
