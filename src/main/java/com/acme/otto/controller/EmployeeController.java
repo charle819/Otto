@@ -6,12 +6,17 @@ import com.acme.otto.model.LoginResponse;
 import com.acme.otto.model.LogoutRequest;
 import com.acme.otto.model.PaginatedEmployeeResponse;
 import com.acme.otto.service.EmployeeService;
+import com.acme.otto.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -22,6 +27,32 @@ public class EmployeeController implements EmployeeApi {
 
 
   private final EmployeeService employeeService;
+  private final AuthenticationManager authenticationManager;
+  private final JwtService jwtService;
+
+  /**
+   * POST /employee/login : Login Employee
+   *
+   * @param loginRequest (required)
+   * @return Employee login successfully (status code 200) or Unexpected error (status code 200)
+   */
+  @Override
+  public ResponseEntity<LoginResponse> loginEmployee(LoginRequest loginRequest) {
+
+    Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(loginRequest.getEmployeeCode(),
+            loginRequest.getPassword()));
+
+    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    String accessToken = jwtService.generateToken(userDetails);
+    String refreshToken = jwtService.generateRefreshToken(userDetails);
+
+    return ResponseEntity.ok(LoginResponse.builder()
+        .jwtToken(accessToken)
+        .refreshToken(refreshToken)
+        .build());
+  }
+
 
   /**
    * GET /employee/{employee_id} : Get Employee Get Employee
@@ -29,6 +60,7 @@ public class EmployeeController implements EmployeeApi {
    * @param employeeId Id of Employee (required)
    * @return Get employee (status code 200) or Unexpected error (status code 200)
    */
+  @PreAuthorize("hasAuthority('ALL_EMPLOYEE_ACTION_ACCESS')")
   @Override
   public ResponseEntity<Employee> getEmployee(Long employeeId) {
     return ResponseEntity.ok(employeeService.getById(employeeId));
@@ -69,17 +101,6 @@ public class EmployeeController implements EmployeeApi {
     return null;
   }
 
-
-  /**
-   * POST /employee/login : Login Employee Login Employee
-   *
-   * @param loginRequest (required)
-   * @return Employee login successfull (status code 200) or Unexpected error (status code 200)
-   */
-  @Override
-  public ResponseEntity<LoginResponse> loginEmployee(LoginRequest loginRequest) {
-    return null;
-  }
 
   /**
    * GET /employee : Search Employees Search Employees

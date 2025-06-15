@@ -111,8 +111,6 @@ paths:
       summary: Login Employee
       description: Login Employee
       operationId: loginEmployee
-      security:
-        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -568,32 +566,18 @@ components:
 
     LoginRequest:
       type: object
-      description: Login request accepting either employeeCode or email plus password
-      oneOf:
-        - required:
-            - employeeCode
-            - password
-          properties:
-            employeeCode:
-              type: string
-              example: EMP001
-            password:
-              type: string
-              format: password
-              example: "yourStrongPassword123"
-        - required:
-            - email
-            - password
-          properties:
-            email:
-              type: string
-              format: email
-              example: john.doe@example.com
-              pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-            password:
-              type: string
-              format: password
-              example: "yourStrongPassword123"
+      description: Login request acceptingemployeeCode and password
+      required:
+        - employeeCode
+        - password
+      properties:
+        employeeCode:
+          type: string
+          example: EMP001
+        password:
+          type: string
+          format: password
+          example: "yourStrongPassword123"
 
     LoginResponse:
       type: object

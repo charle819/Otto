@@ -21,18 +21,21 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "employee")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeEntity {
+public class EmployeeEntity implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_seq")
@@ -91,4 +94,14 @@ public class EmployeeEntity {
   }
 
 
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    // TODO : need to pass roles -> permissions
+    return List.of();
+  }
+
+  @Override
+  public String getUsername() {
+    return employeeCode;
+  }
 }
