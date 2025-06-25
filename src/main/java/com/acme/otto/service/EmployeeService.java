@@ -5,6 +5,7 @@ import com.acme.otto.entity.PermissionEntity;
 import com.acme.otto.entity.RoleEntity;
 import com.acme.otto.mapper.EmployeeMapper;
 import com.acme.otto.model.Employee;
+import com.acme.otto.model.PaginatedEmployeeResponse;
 import com.acme.otto.repository.EmployeeRepository;
 import jakarta.transaction.Transactional;
 import java.security.Permission;
@@ -16,6 +17,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.autoconfigure.rsocket.RSocketProperties.Server.Spec;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,7 +65,7 @@ public class EmployeeService implements UserDetailsService {
     EmployeeEntity employeeEntity = employeeRepository.findByEmployeeCode(username)
         .orElseThrow(() -> {
           throw new UsernameNotFoundException(
-              "Employee with employee code :" + username + " already exist");
+              "Employee with employee code :" + username + " does not exist");
         });
 
     Set<SimpleGrantedAuthority> authorities = employeeRepository
@@ -69,4 +76,65 @@ public class EmployeeService implements UserDetailsService {
 
     return new User(username, employeeEntity.getPassword(), authorities);
   }
+
+  @Transactional
+  public void delete(Long employeeId) {
+
+    var employee = employeeRepository.findById(employeeId).orElseThrow(() -> {
+      throw new UsernameNotFoundException(
+          "Employee with employee Id :" + employeeId + " dos not exist");
+    });
+
+    employee.setIsActive(Boolean.FALSE);
+    employeeRepository.save(employee);
+  }
+
+  public PaginatedEmployeeResponse search(Integer offset, Integer limit,
+      String baseLocation, String name, String email, Boolean isActive) {
+
+    Specification<EmployeeEntity> spec = hasBaseLocation(baseLocation)
+        .and(hasNameContaining(name))
+        .and(hasEmail(email))
+        .and(isActive(isActive));
+    Pageable pageable = PageRequest.of(offset / limit, limit); // convert offset to page number
+    Page<EmployeeEntity> page = employeeRepository.findAll(spec, pageable);
+    return PaginatedEmployeeResponse.builder()
+        .count(page.getNumberOfElements())
+        .total((int) page.getTotalElements())
+        .offset(offset)
+        .limit(limit)
+        .data(employeeMapper.fromEntityList(page.getContent()))
+        .build();
+  }
+
+  private Specification<EmployeeEntity> hasBaseLocation(String baseLocation) {
+    return (root, query, criteriaBuilder)
+        -> StringUtils.isNoneEmpty(baseLocation) ?
+        criteriaBuilder.equal(criteriaBuilder.upper(root.get("baseLocation")),
+            baseLocation.toUpperCase())
+        : null;
+  }
+
+  private Specification<EmployeeEntity> hasNameContaining(String name) {
+    return (root, query, criteriaBuilder)
+        -> StringUtils.isNoneEmpty(name) ?
+        criteriaBuilder.like(criteriaBuilder.upper(root.get("fullName")),
+            "%" + name.toUpperCase() + "%")
+        : null;
+  }
+
+  private Specification<EmployeeEntity> hasEmail(String email) {
+    return (root, query, criteriaBuilder)
+        -> StringUtils.isNoneEmpty(email) ?
+        criteriaBuilder.equal(root.get("email"), email)
+        : null;
+  }
+
+  private Specification<EmployeeEntity> isActive(Boolean isActive) {
+    return (root, query, criteriaBuilder)
+        -> isActive != null ?
+        criteriaBuilder.equal(root.get("isActive"), isActive)
+        : null;
+  }
+
 }

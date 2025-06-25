@@ -58,6 +58,9 @@ public class EmployeeEntity implements UserDetails {
   @Column(name = "phone_number")
   private String phoneNumber;
 
+  @Column(name = "base_location", nullable = false)
+  private String baseLocation;
+
   @Column(name = "is_active")
   private Boolean isActive = Boolean.TRUE;
 

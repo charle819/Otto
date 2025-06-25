@@ -2,6 +2,7 @@ package com.acme.otto.mapper;
 
 import com.acme.otto.entity.EmployeeEntity;
 import com.acme.otto.model.Employee;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants.ComponentModel;
@@ -13,4 +14,5 @@ public interface EmployeeMapper {
 
   Employee fromEntity(EmployeeEntity employeeEntity);
 
+  List<Employee> fromEntityList(List<EmployeeEntity> employeeEntities);
 }

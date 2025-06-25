@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/otto")
 public class EmployeeController implements EmployeeApi {
 
-
   private final EmployeeService employeeService;
   private final AuthenticationManager authenticationManager;
   private final JwtService jwtService;
@@ -87,7 +86,8 @@ public class EmployeeController implements EmployeeApi {
    */
   @Override
   public ResponseEntity<Void> deleteEmployee(Long employeeId) {
-    return null;
+    employeeService.delete(employeeId);
+    return (ResponseEntity<Void>) ResponseEntity.ok();
   }
 
   /**
@@ -116,7 +116,8 @@ public class EmployeeController implements EmployeeApi {
   @Override
   public ResponseEntity<PaginatedEmployeeResponse> searchEmployee(Integer offset, Integer limit,
       String baseLocation, String name, String email, Boolean isActive) {
-    return null;
+    return ResponseEntity.ok(
+        employeeService.search(offset, limit, baseLocation, name, email, isActive));
   }
 
   /**
